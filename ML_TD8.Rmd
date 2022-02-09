@@ -1,0 +1,163 @@
+---
+title: "Week 8"
+subtitle: "Gaussian Mixture Models & EM"
+author: "Roland DENIZOT and Méwen JEANNENEY"
+date: "`r format(Sys.time())`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    theme: cerulean
+    highlight: espresso
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# GMM vs  k-means
+
+## Question 1
+```{r Question 1}
+data1 = read.csv('data1.csv')
+data2 = read.csv('data2.csv')
+par(mfrow=c(1,2))
+plot(data1$X1, data1$X2, col = data1$truth, xlab = 'X1', ylab = 'X2', main = 'Data1', pch = 19)
+plot(data2$X1, data2$X2, col = data2$truth, xlab = 'X1', ylab = 'X2', main = 'Data2', pch = 19)
+```
+
+## Question 2
+```{r Question 2}
+set.seed(1000)
+km1 = kmeans(data1[,1:2], centers = 4)
+km2 = kmeans(data1[,1:2], centers = 4)
+par(mfrow=c(1,2))
+plot(data1[,1:2], col = km1$cluster, xlab = 'X1', ylab = 'X2', main = 'Data1 k-means', pch = 19)
+plot(data2[,1:2], col = km2$cluster, xlab = 'X1', ylab = 'X2', main = 'Data2 k-means', pch = 19)
+```
+The result is more accurate for the first dataset than for the second dataset, we can conclude that k'means is efficient for circle shape clusters, but not for other forms of clusters because of the presence of centroids and calculation of distance. We need to find another model for the second dataset.
+
+## Question 3
+```{r Question 3}
+#install.packages('mclust')
+library(mclust)
+GMM1 = Mclust(data1[,1:2])
+GMM2 = Mclust(data2[,1:2])
+par(mfrow=c(1,2))
+plot(data1[,1:2], col = GMM1$classification, xlab = 'X1', ylab = 'X2', main = 'Data1 GMM', pch = 19)
+plot(data2[,1:2], col = GMM2$classification, xlab = 'X1', ylab = 'X2', main = 'Data2 GMM', pch = 19)
+```
+The result is very accurate for both datasets, so the GMM model is better than the k-means model.
+
+
+## Question 4
+```{r Question 4}
+summary(GMM2)
+```
+It show that values are separated in 4 equals clusters in term of numbers and the log-likelihood shows a very good level of confidence.
+
+## Question 5
+```{r Question 5}
+par(mfrow=c(1,2))
+plot(GMM2, what = "classification")
+plot(GMM2, what = "uncertainty")
+```
+We can see that the classification is well done but there are some incertainty, we can see some difficulties to make a difference bewteen multiple clusters for some points.
+
+## Question 6
+```{r Question 6}
+plot(GMM2, what = "BIC")
+```
+
+## Question 7
+```{r Question 7}
+par(mfrow=c(1,2))
+density2 = densityMclust(data2[,1:2])
+plot(density2, what = "density", type = "persp")
+```
+
+# Question 8
+```{r Question 8}
+set.seed(706550)
+g1 = rnorm(100)
+g2 = rnorm(100,mean=5,sd=1)
+g3 = rnorm(100,mean=-5,sd=1)
+
+t1 = rep(1,100)
+t2 = rep(2,100)
+t3 = rep(3,100)
+
+mydata = rbind(cbind(g1,t1),cbind(g2,t2),cbind(g3,t3))
+colnames(mydata) = c("X","source")
+mydata = data.frame(mydata)
+```
+
+# Question 9
+```{r Question 9}
+stripchart(mydata$X, bg = mydata$source , pch = 21)
+```
+
+# Question 10
+```{r Question 10}
+hist(mydata$X)
+```
+We can see three spikes corresponding to the parameter "mean" of each Gaussian distribution made before.
+
+# Question 11
+```{r Question 11}
+par(mfrow=c(2,2))
+GMM3 = Mclust(mydata$X)
+summary(GMM3)
+plot(GMM3, what = "classification")
+plot(GMM3, what = "uncertainty")
+plot(GMM3, what = "BIC")
+plot(GMM3, what = "density")
+```
+There are 3 clusters of 100,99 and 101 values, which is relatively accurate. On the density graph, can see 3 tops on the means of the Gaussian distribution made before. The uncertainty is the highest when the Gaussian Distributions overlap.
+
+# Question 12
+```{r Question 12}
+par(mfrow=c(1,2))
+density2 = densityMclust(mydata$X)
+plot(density2, what = "density", data = mydata$X)
+```
+The tops are at the same place with bars and curves so the estimations corresponds to reality.
+
+## EM for scratch
+
+# Question 1
+```{r Question 101}
+set.seed(706550)
+g4 = rnorm(100)
+g5 = rnorm(100,mean=5,sd=1)
+mydata2 = cbind(g4,g5,rep(1,100))
+mydata2
+
+g6 = rnorm(100,mean=-3,sd = 1)
+g7 = rnorm(100,mean=3,sd=2)
+mydata3 = cbind(g6,g7,rep(2,100))
+mydata3
+
+mydata4 = rbind(mydata2,mydata3)
+GMM4 = Mclust(mydata4[,1:2])
+par(mfrow = c(1,1))
+plot(GMM4, what = "classification")
+```
+
+# Question 2
+```{r Question 102}
+EM = function(dataset){
+  k = 11
+  }
+
+```
+
+# Question 5
+```{r Question 105}
+iris = read.csv('https://www.mghassany.com/MLcourse/datasets/iris.data')
+EM(iris)
+```
+
